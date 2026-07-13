@@ -1,0 +1,71 @@
+<!-- 고정 헤더 컴포넌트 (홈 - index.html) -->
+<header class="fixed top-0 left-0 right-0 z-50 bg-warm-100/90 backdrop-blur-md border-b border-warm-200">
+    <div class="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+        
+        <!-- 로고 (자전거 따릉이 벨소리 연동 유지) -->
+        <a href="index.html" class="flex items-center gap-3 text-olive-500 font-extrabold text-xl tracking-wider" onclick="playBikeBell()">
+            <i data-lucide="bike" class="w-7 h-7"></i>
+            <span>넘어져도 괜찮아</span>
+        </a>
+
+        <!-- 데스크탑 네비게이션 메뉴 (현재 페이지 강조 탑재) -->
+        <nav class="hidden md:flex items-center gap-10 text-base font-semibold">
+            <a href="index.html" class="text-olive-500 border-b-2 border-olive-500 pb-1 font-bold">홈</a>
+            <a href="story.html" class="text-warm-900/80 hover:text-olive-500 pb-1 border-b-2 border-transparent transition-colors">나의 이야기</a>
+            <a href="style.html" class="text-warm-900/80 hover:text-olive-500 pb-1 border-b-2 border-transparent transition-colors">라이딩 스타일</a>
+            <a href="guide.html" class="text-warm-900/80 hover:text-olive-500 pb-1 border-b-2 border-transparent transition-colors">초보자 가이드</a>
+            <a href="quiz.html" class="text-warm-900/80 hover:text-olive-500 pb-1 border-b-2 border-transparent transition-colors">성향 테스트</a>
+            <a href="contact.html" class="text-warm-900/80 hover:text-olive-500 pb-1 border-b-2 border-transparent transition-colors">문의하기</a>
+        </nav>
+
+        <!-- 우측 액션 영역 (따릉이 벨 & 모바일용 토글 버튼) -->
+        <div class="flex items-center gap-4">
+            <!-- 벨 재생 버튼 -->
+            <button onclick="playBikeBell()" class="hidden sm:flex items-center gap-2.5 bg-olive-500 hover:bg-olive-600 text-white px-5 py-2.5 rounded-full text-xs md:text-sm font-bold transition-all transform active:scale-95 shadow-md shadow-olive-500/20">
+                <i data-lucide="bell" class="w-4 h-4 md:w-5 md:h-5"></i>
+                <span>따르릉 벨 울리기</span>
+            </button>
+
+            <!-- 모바일용 햄버거 토글 버튼 -->
+            <button onclick="toggleMobileMenu()" class="md:hidden flex items-center justify-center p-2.5 rounded-xl bg-warm-200/60 hover:bg-warm-200 transition-all text-warm-900">
+                <i data-lucide="menu" id="menu-open-icon" class="w-6 h-6 block"></i>
+                <i data-lucide="x" id="menu-close-icon" class="w-6 h-6 hidden"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- 모바일 드롭다운 메뉴 (토글식) -->
+    <div id="mobile-menu" class="hidden md:hidden border-t border-warm-200/60 bg-warm-100/95 backdrop-blur-md px-8 py-5 rounded-b-3xl shadow-lg space-y-3.5">
+        <a href="index.html" class="block px-5 py-3 rounded-2xl text-sm font-bold bg-olive-500 text-white shadow-md shadow-olive-500/10">홈</a>
+        <a href="story.html" class="block px-5 py-3 rounded-2xl text-sm font-bold text-warm-900/75 hover:bg-olive-50 hover:text-olive-600 transition-all">나의 이야기</a>
+        <a href="style.html" class="block px-5 py-3 rounded-2xl text-sm font-bold text-warm-900/75 hover:bg-olive-50 hover:text-olive-600 transition-all">라이딩 스타일</a>
+        <a href="guide.html" class="block px-5 py-3 rounded-2xl text-sm font-bold text-warm-900/75 hover:bg-olive-50 hover:text-olive-600 transition-all">초보자 가이드</a>
+        <a href="quiz.html" class="block px-5 py-3 rounded-2xl text-sm font-bold text-warm-900/75 hover:bg-olive-50 hover:text-olive-600 transition-all">성향 테스트</a>
+        <a href="contact.html" class="block px-5 py-3 rounded-2xl text-sm font-bold text-warm-900/75 hover:bg-olive-50 hover:text-olive-600 transition-all">문의하기</a>
+    </div>
+</header>
+
+<!-- 헤더 햄버거 메뉴 토글용 필수 자바스크립트 코드 (body 태그 최하단이나 공통 영역에 추가) -->
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        const openIcon = document.getElementById('menu-open-icon');
+        const closeIcon = document.getElementById('menu-close-icon');
+        
+        if (menu.classList.contains('hidden')) {
+            menu.classList.remove('hidden');
+            openIcon.classList.add('hidden');
+            closeIcon.classList.remove('hidden');
+        } else {
+            menu.classList.add('hidden');
+            openIcon.classList.remove('hidden');
+            closeIcon.classList.add('hidden');
+        }
+    }
+</script>
+
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<!-- body 최하단에 아이콘 로드 필수 -->
+<script>lucide.createIcons();</script>
