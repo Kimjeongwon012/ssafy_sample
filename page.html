@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>넘어져도 괜찮아 | 자전거 입문 가이드</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 프리텐다드 폰트 -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.tailwindcss.com/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Tone.js (자전거 따릉이 벨소리 구현용) -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        olive: {
+                            50: '#F5F7F4',
+                            100: '#EAF0E6',
+                            200: '#D1DEC9',
+                            300: '#B9CDB1',
+                            500: '#4A6B42', // 올리브 그린 (메인)
+                            600: '#3D5936',
+                            700: '#2E4329',
+                        },
+                        warm: {
+                            50: '#FCFBF9',
+                            100: '#FAF8F5', // 웜 화이트 (배경)
+                            200: '#F4EFEA',
+                            300: '#EAE2D8',
+                            900: '#222222', // 소프트 블랙 (텍스트)
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Pretendard', 'ui-sans-serif', 'system-ui'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* 풀페이지 스크롤 스냅 설정 */
+        html, body {
+            scroll-behavior: smooth;
+        }
+        
+        @media (min-width: 768px) {
+            html {
+                scroll-snap-type: y mandatory;
+            }
+            .snap-section {
+                scroll-snap-align: start;
+                scroll-snap-stop: always;
+            }
+        }
+
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #FAF8F5;
+            color: #222222;
+        }
+
+        /* 자전거 애니메이션 효과 */
+        .bike-ride {
+            animation: ride 4s linear infinite;
+        }
+        @keyframes ride {
+            0% { transform: translateX(-15px) rotate(0deg); }
+            50% { transform: translateX(15px) rotate(3deg); }
+            100% { transform: translateX(-15px) rotate(0deg); }
+        }
+    </style>
+</head>
+<body class="antialiased selection:bg-olive-200 overflow-x-hidden">
+
+    <script>
+        // 자전거 벨 소리 합성기 설정 (Tone.js)
+        let bellSynth;
+        function initBell() {
+            if (!bellSynth) {
+                bellSynth = new Tone.PolySynth(Tone.Synth, {
+                    oscillator: { type: "sine" },
+                    envelope: { attack: 0.002, decay: 0.15, sustain: 0, release: 0.1 }
+                }).toDestination();
+                bellSynth.set({ volume: -6 });
+            }
+        }
+
+        function playBikeBell() {
+            try {
+                initBell();
+                Tone.start();
+                const now = Tone.now();
+                bellSynth.triggerAttackRelease(["E6", "C7"], "32n", now);
+                bellSynth.triggerAttackRelease(["E6", "C7"], "32n", now + 0.07);
+                bellSynth.triggerAttackRelease(["F6", "D7"], "32n", now + 0.14);
+            } catch (e) {
+                console.log("Audio not allowed yet or failed to play");
+            }
+        }
+    </script>
+
+    <!-- 고정 헤더 (1.4배 스케일에 맞춰 크기 확대) -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-warm-100/90 backdrop-blur-md border-b border-warm-200">
+        <div class="max-w-7xl mx-auto px-8 h-20 flex items-center justify-between">
+            <a href="#" class="flex items-center gap-3 text-olive-500 font-extrabold text-xl tracking-wider" onclick="playBikeBell()">
+                <i data-lucide="bike" class="w-7 h-7"></i>
+                <span>넘어져도 괜찮아</span>
+            </a>
+            <nav class="hidden md:flex items-center gap-10 text-base font-semibold text-warm-900/80">
+                <a href="#about" class="hover:text-olive-500 transition-colors">나의 이야기</a>
+                <a href="#taste" class="hover:text-olive-500 transition-colors">현실 맛보기</a>
+                <a href="#guide" class="hover:text-olive-500 transition-colors">초보자 안내서</a>
+                <a href="#quiz" class="hover:text-olive-500 transition-colors">자린이 테스트</a>
+            </nav>
+            <button onclick="playBikeBell()" class="flex items-center gap-2.5 bg-olive-500 hover:bg-olive-600 text-white px-5 py-2.5 rounded-full text-xs md:text-sm font-bold transition-all transform active:scale-95 shadow-md shadow-olive-500/20">
+                <i data-lucide="bell" class="w-4 h-4 md:w-5 md:h-5"></i>
+                <span>따르릉 벨 울리기</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- 1. 히어로 섹션 (가독성 및 사이즈 극대화) -->
+    <section class="snap-section relative h-screen flex items-center pt-20 bg-gradient-to-b from-olive-50 to-warm-100 overflow-hidden">
+        <div class="absolute -right-20 -top-20 w-[500px] h-[500px] rounded-full bg-olive-100/40 blur-3xl"></div>
+        <div class="absolute -left-20 bottom-0 w-[400px] h-[400px] rounded-full bg-warm-200/50 blur-2xl"></div>
+
+        <div class="max-w-6xl mx-auto px-8 text-center relative z-10 w-full">
+            <span class="inline-flex items-center gap-2 px-5 py-2 rounded-full text-xs md:text-sm font-bold bg-olive-100 text-olive-700 mb-8 md:mb-10 border border-olive-200/50">
+                <span class="w-2 h-2 rounded-full bg-olive-500 animate-pulse"></span>
+                초보자를 위한 가장 다정한 길잡이
+            </span>
+            
+            <h1 class="text-5xl md:text-8xl font-black text-warm-900 leading-tight md:leading-snug mb-8 md:mb-10 tracking-tight">
+                넘어져도 괜찮아,<br>
+                너와 나의 즐거운 <span class="inline-block text-olive-500 underline decoration-wavy decoration-olive-200 underline-offset-8">자전거 입문 가이드</span>
+            </h1>
+
+            <p class="text-base md:text-2xl text-warm-900/70 max-w-4xl mx-auto leading-relaxed mb-10 md:mb-14">
+                뺨을 스치는 싱그러운 바람, 허벅지가 터질 것 같은 오르막길의 쾌감.<br>
+                화려한 프로의 기록 대신, 엉성하게 넘어지며 배운 <strong>진짜 자전거 이야기</strong>를 나눕니다. 
+                함께 두 바퀴 위에 올라볼까요?
+            </p>
+
+            <div class="flex flex-col sm:flex-row items-center justify-center gap-5">
+                <a href="#about" class="w-full sm:w-auto px-10 py-5 rounded-full bg-olive-500 hover:bg-olive-600 text-white text-base md:text-lg font-bold transition-all shadow-lg shadow-olive-500/20 text-center transform active:scale-95" onclick="playBikeBell()">
+                    나의 자전거 이야기
+                </a>
+                <a href="#quiz" class="w-full sm:w-auto px-10 py-5 rounded-full bg-white hover:bg-warm-50 text-warm-900 border border-warm-200 text-base md:text-lg font-bold transition-all text-center transform active:scale-95">
+                    내게 맞는 자전거 찾기
+                </a>
+            </div>
+
+            <div class="mt-12 md:mt-20 flex justify-center">
+                <div class="bike-ride relative inline-block text-olive-500 opacity-80">
+                    <i data-lucide="bike" class="w-20 h-20 md:w-32 md:h-32"></i>
+                    <div class="absolute -bottom-3 left-0 right-0 h-1.5 bg-gradient-to-r from-transparent via-olive-500/30 to-transparent rounded-full animate-pulse"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. 소개 섹션 (나의 이야기 - 1.4배 스케일업 & 3단계 로드맵) -->
+    <section id="about" class="snap-section h-screen flex items-center pt-20 bg-white scroll-mt-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-8 w-full flex flex-col justify-center h-full py-6">
+            
+            <!-- 상단 라벨 및 타이틀 -->
+            <div class="text-center mb-8 md:mb-14">
+                <h2 class="text-3xl md:text-5xl font-black text-warm-900 leading-tight">
+                    가볍게 시작했는데,<br class="md:hidden"> 점점 멀리 가고 싶어졌다
+                </h2>
+                <p class="text-sm md:text-lg text-warm-900/60 mt-3 max-w-2xl mx-auto leading-relaxed">
+                    친구들과 한강을 달리던 가벼운 시작이, 어느 순간 새로운 목적지를 찾는 취미가 되었습니다.
+                </p>
+            </div>
+
+            <!-- 3단계 시각적 변화 로드맵 -->
+            <div class="grid md:grid-cols-3 gap-8 md:gap-10 items-stretch relative mb-8 md:mb-14">
+                
+                <!-- 1단계: START -->
+                <div class="bg-warm-50 p-6 md:p-8 rounded-3xl border border-olive-200 flex flex-col justify-between transition-all hover:shadow-md">
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="text-xs md:text-sm font-extrabold text-olive-600 bg-olive-100 px-3 py-1.5 rounded-full uppercase">01 / START</span>
+                            <span class="text-xs md:text-sm font-bold text-warm-900/40">JUST FOR FUN</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3">친구들과 가볍게</h3>
+                        <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                            처음에는 친구들과 함께 가볍게 한강 주변을 산책하듯 가볍게 타는 정도였습니다.
+                        </p>
+                    </div>
+                    <!-- 1단계 시각요소 -->
+                    <div class="mt-8 pt-5 border-t border-warm-200/50 flex items-center gap-4 text-warm-900/50">
+                        <div class="flex gap-1.5">
+                            <i data-lucide="users" class="w-5 h-5 text-olive-500"></i>
+                            <i data-lucide="bike" class="w-5 h-5"></i>
+                        </div>
+                        <div class="h-1 flex-1 bg-gradient-to-r from-olive-300 to-transparent rounded"></div>
+                        <span class="text-xs font-bold tracking-wider">단거리 마실</span>
+                    </div>
+                </div>
+
+                <!-- 2단계: CHANGE -->
+                <div class="bg-warm-50 p-6 md:p-8 rounded-3xl border border-olive-200 flex flex-col justify-between transition-all hover:shadow-md relative">
+                    <!-- 데스크탑 전용 연결 점선 데코레이션 -->
+                    <div class="hidden md:block absolute -left-5 top-1/2 -translate-y-1/2 z-10 text-olive-300 font-bold text-2xl">➔</div>
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="text-xs md:text-sm font-extrabold text-olive-600 bg-olive-100 px-3 py-1.5 rounded-full uppercase">02 / CHANGE</span>
+                            <span class="text-xs md:text-sm font-bold text-warm-900/40">THE SHIFT</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3">조금 더 멀리</h3>
+                        <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                            몇 번 타다 보니 땀 흘리는 쾌감을 알게 되었고, 조금 더 멀리 가보고 싶다는 설레는 욕심이 생겼습니다.
+                        </p>
+                    </div>
+                    <!-- 2단계 시각요소 -->
+                    <div class="mt-8 pt-5 border-t border-warm-200/50 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-xs text-warm-900/50 font-semibold">
+                            <span>한강 근처</span>
+                            <i data-lucide="chevrons-right" class="w-4 h-4 text-olive-500"></i>
+                            <span class="text-olive-600 font-bold">조금 더 멀리</span>
+                            <i data-lucide="chevrons-right" class="w-4 h-4 text-olive-500"></i>
+                            <span>새로운 목적지</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 3단계: NOW -->
+                <div class="bg-olive-50 p-6 md:p-8 rounded-3xl border-2 border-olive-200 flex flex-col justify-between transition-all hover:shadow-md relative">
+                    <div class="hidden md:block absolute -left-5 top-1/2 -translate-y-1/2 z-10 text-olive-300 font-bold text-2xl">➔</div>
+                    <div>
+                        <div class="flex items-center justify-between mb-5">
+                            <span class="text-xs md:text-sm font-extrabold text-white bg-olive-500 px-3 py-1.5 rounded-full uppercase">03 / NOW</span>
+                            <span class="text-xs md:text-sm font-bold text-olive-600">MY LIFE</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3">다음 목적지를 찾는 취미</h3>
+                        <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                            어느 순간 저는 주말 아침마다 눈을 뜨며 <strong class="text-olive-700">“오늘은 어디까지 가볼까?”</strong>를 두근거리며 생각하고 있었습니다.
+                        </p>
+                    </div>
+                    <!-- 3단계 시각요소 -->
+                    <div class="mt-8 pt-5 border-t border-olive-200 flex items-center justify-between text-olive-700">
+                        <div class="flex items-center gap-2">
+                            <i data-lucide="compass" class="w-5 h-5 animate-spin" style="animation-duration: 8s;"></i>
+                            <span class="text-xs font-bold">새로운 나를 향한 탐험</span>
+                        </div>
+                        <i data-lucide="bike" class="w-6 h-6"></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- 하단 감성 문구 박스 -->
+            <div class="bg-olive-500/10 border border-olive-200 p-6 md:p-8 rounded-3xl text-center max-w-3xl mx-auto">
+                <p class="text-sm md:text-lg font-semibold text-olive-800 italic leading-relaxed">
+                    “처음에는 그냥 같이 타는 정도였습니다. 그런데 점점 더 멀리 가보고 싶어졌습니다.”
+                </p>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- 3. 현실 맛보기 섹션 (대형 카드 & 토글) -->
+    <section id="taste" class="snap-section h-screen flex items-center pb-20 bg-warm-50 border-y border-warm-200/60 scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-8 w-full ">
+            <div class="text-center mb-10 md:mb-14">
+                <h2 class="text-4xl md:text-5xl font-black text-warm-900 mb-4">당신은 어떤 스타일로 달리고 싶나요?</h2>
+                <p class="text-base md:text-lg text-warm-900/60">여유롭게 풍경과 맛집을 즐길지, 땀 흘리며 기록에 도전할지 원하는 라이딩 스타일을 선택해 보세요.</p>
+                
+                <div class="inline-flex p-1.5 bg-warm-200 rounded-full mt-8 md:mt-10">
+                    <button id="btn-mild" onclick="toggleTaste('mild')" class="px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all bg-olive-500 text-white shadow-md">
+                        🌿 휴식, 맛집 탐방
+                    </button>
+                    <button id="btn-spicy" onclick="toggleTaste('spicy')" class="px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all text-warm-900/60 hover:text-warm-900">
+                        🔥 운동, 기록 세우기
+                    </button>
+                </div>
+            </div>
+
+            <!-- 휴식·맛집 탐방 내용 -->
+            <div id="taste-mild" class="bg-white p-8 md:p-16 rounded-[32px] border border-olive-200 shadow-sm transition-all duration-300">
+                <div class="grid md:grid-cols-2 gap-10 md:gap-14">
+                    <div class="space-y-4 md:space-y-6">
+                        <span class="inline-block px-4 py-1.5 bg-olive-100 text-olive-700 rounded-full text-xs md:text-sm font-bold">RELAX & FOOD</span>
+                        <h3 class="text-2xl md:text-4xl font-extrabold text-warm-900">천천히 달리며 즐기는 작은 여행</h3>
+                        <p class="text-warm-900/70 text-sm md:text-lg leading-relaxed">
+                            빠르게 달리지 않아도 괜찮습니다. 익숙한 동네와 강변을 천천히 달리며 새로운 풍경을 발견하고, 마음에 드는 맛집이나 카페에 들르는 것만으로도 충분히 즐거운 라이딩이 됩니다.
+                        </p>
+                    </div>
+                    <ul class="space-y-4 md:space-y-6 text-sm md:text-lg text-warm-900/85">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check-circle-2" class="w-6 h-6 text-olive-500 shrink-0 mt-0.5"></i>
+                            <span>한강과 자전거 도로를 달리며 여유롭게 즐기는 풍경과 바람</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check-circle-2" class="w-6 h-6 text-olive-500 shrink-0 mt-0.5"></i>
+                            <span>평소 가기 어려웠던 맛집과 카페를 찾아가는 소소한 재미</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check-circle-2" class="w-6 h-6 text-olive-500 shrink-0 mt-0.5"></i>
+                            <span>속도와 기록에 대한 부담 없이 내 페이스대로 즐기는 라이딩</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="check-circle-2" class="w-6 h-6 text-olive-500 shrink-0 mt-0.5"></i>
+                            <span>친구들과 자전거를 빌려 함께 즐기는 라이딩</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 운동·기록 세우기 내용 (기본 숨김) -->
+            <div id="taste-spicy" class="hidden bg-white p-8 md:p-16 rounded-[32px] border border-red-200 shadow-sm transition-all duration-300">
+                <div class="grid md:grid-cols-2 gap-10 md:gap-14">
+                    <div class="space-y-4 md:space-y-6">
+                        <span class="inline-block px-4 py-1.5 bg-red-100 text-red-700 rounded-full text-xs md:text-sm font-bold">CHALLENGE & RECORD</span>
+                        <h3 class="text-2xl md:text-4xl font-extrabold text-warm-900">어제의 나보다 더 멀리, 더 빠르게</h3>
+                        <p class="text-warm-900/70 text-sm md:text-lg leading-relaxed">
+                            자전거는 단순한 이동 수단을 넘어 꾸준히 성장할 수 있는 운동이 됩니다. 거리와 속도를 기록하고 새로운 코스에 도전하다 보면, 조금씩 향상되는 체력과 성취감을 직접 확인할 수 있습니다.
+                        </p>
+                    </div>
+                    <ul class="space-y-4 md:space-y-6 pt-10 text-sm md:text-lg text-warm-900/85 whitespace-nowrap">
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 shrink-0 mt-0.5"></i>
+                            <span><strong>체력 향상:</strong> 꾸준한 라이딩으로 심폐지구력과 하체 근력을 강화하기</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 shrink-0 mt-0.5"></i>
+                            <span><strong>기록 도전:</strong> 거리와 평균 속도를 측정하며 이전 기록을 하나씩 넘어서기</span>
+                        </li>
+                        <li class="flex items-start gap-3">
+                            <i data-lucide="alert-triangle" class="w-6 h-6 text-red-500 shrink-0 mt-0.5"></i>
+                            <span><strong>목표 달성:</strong> 장거리 코스와 오르막길에 도전하며 성취감 느끼기</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function toggleTaste(type) {
+            const btnMild = document.getElementById('btn-mild');
+            const btnSpicy = document.getElementById('btn-spicy');
+            const contentMild = document.getElementById('taste-mild');
+            const contentSpicy = document.getElementById('taste-spicy');
+
+            if (type === 'mild') {
+                btnMild.className = "px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all bg-olive-500 text-white shadow-md";
+                btnSpicy.className = "px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all text-warm-900/60 hover:text-warm-900";
+                contentMild.classList.remove('hidden');
+                contentSpicy.classList.add('hidden');
+            } else {
+                btnMild.className = "px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all text-warm-900/60 hover:text-warm-900";
+                btnSpicy.className = "px-8 py-3.5 rounded-full font-bold text-sm md:text-base transition-all bg-red-600 text-white shadow-md";
+                contentMild.classList.add('hidden');
+                contentSpicy.classList.remove('hidden');
+            }
+        }
+    </script>
+
+    <!-- 4. 자린이 특급 가이드 (대형 격자 카드) -->
+    <section id="guide" class="snap-section h-screen flex items-center bg-white scroll-mt-20">
+        <div class="max-w-7xl mx-auto px-8 w-full -translate-y-12 md:-translate-y-16">
+            <div class="text-center mb-12 md:mb-16">
+                <h2 class="text-4xl md:text-5xl font-black text-warm-900 mb-4">
+                    자린이 가이드
+                </h2>
+                <p class="text-base md:text-lg text-warm-900/60">
+                    자전거를 처음 시작할 때 궁금한 내용을 미리 확인해 보세요.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 md:gap-10">
+                <!-- 가이드 1: 자전거 대여 -->
+                <div class="p-8 md:p-12 rounded-3xl bg-warm-50 border border-olive-200 hover:border-olive-500/30 hover:shadow-xl hover:shadow-olive-500/5 transition-all duration-300">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-olive-100 flex items-center justify-center text-olive-700 mb-6 md:mb-8 font-extrabold text-lg md:text-2xl">
+                        01
+                    </div>
+
+                    <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3 md:mb-4">
+                        꼭 자전거를 사야 하나요?
+                    </h3>
+
+                    <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                        처음부터 자전거를 구매할 필요는 없습니다. 서울에서는 따릉이와 같은 공공자전거를 빌려 부담 없이 시작할 수 있습니다. 이용 시간이 끝나기 전에 반납하고 다시 대여하면 장시간 라이딩도 가능하므로, 먼저 여러 번 타본 뒤 구매를 결정해 보세요.
+                    </p>
+                </div>
+
+                <!-- 가이드 2: 안전하게 출발하기 -->
+                <div class="p-8 md:p-12 rounded-3xl bg-warm-50 border border-olive-200 hover:border-olive-500/30 hover:shadow-xl hover:shadow-olive-500/5 transition-all duration-300">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-olive-100 flex items-center justify-center text-olive-700 mb-6 md:mb-8 font-extrabold text-lg md:text-2xl">
+                        02
+                    </div>
+
+                    <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3 md:mb-4">
+                        출발할 때는 어떻게 페달을 밟아야 하나요?
+                    </h3>
+
+                    <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                        한쪽 페달을 대각선 위쪽에 둔 뒤, 그 페달을 힘 있게 밟으면서 반대쪽 발을 자연스럽게 올리면 안정적으로 출발할 수 있습니다. 시선은 페달이 아닌 앞쪽을 향하고, 핸들은 갑자기 꺾지 말고 곧게 유지하세요.
+                    </p>
+                </div>
+
+                <!-- 가이드 3: 자전거도로 질서 -->
+                <div class="p-8 md:p-12 rounded-3xl bg-warm-50 border border-olive-200 hover:border-olive-500/30 hover:shadow-xl hover:shadow-olive-500/5 transition-all duration-300">
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-olive-100 flex items-center justify-center text-olive-700 mb-6 md:mb-8 font-extrabold text-lg md:text-2xl">
+                        03
+                    </div>
+
+                    <h3 class="text-xl md:text-2xl font-bold text-warm-900 mb-3 md:mb-4">
+                        자전거를 탈 때 어떤 질서를 지켜야 하나요?
+                    </h3>
+
+                    <p class="text-sm md:text-base text-warm-900/70 leading-relaxed">
+                        자전거도로에서는 우측으로 통행하고, 속도가 느릴 때는 다른 자전거가 안전하게 추월할 수 있도록 오른쪽 가장자리로 붙어 주는 것이 좋습니다. 방향을 바꾸기 전에는 뒤를 확인하고 신호를 보내며, 갑작스러운 정지나 역주행, 급격한 유턴은 피하세요.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. 라이딩 성향 테스트 (크기 확대) -->
+    <section id="quiz" class="snap-section h-screen flex items-center bg-olive-50 border-t border-olive-100 scroll-mt-20">
+        <div class="max-w-3xl mx-auto px-8 w-full -translate-y-8 md:-translate-y-12">
+            <div class="text-center mb-8 md:mb-12">
+                <span class="inline-block text-3xl mb-3">🤔</span>
+                <h2 class="text-3xl md:text-4xl font-black text-warm-900">자린이 라이딩 성향 테스트</h2>
+                <p class="text-sm md:text-base text-warm-900/60 mt-2">간단한 3가지 질문으로 나에게 딱 맞는 입문 자전거를 찾아 보세요!</p>
+            </div>
+
+            <!-- 퀴즈 박스 카드 (확장) -->
+            <div class="bg-white rounded-[32px] p-8 md:p-12 border border-olive-200 shadow-md relative overflow-hidden">
+                
+                <!-- 질문 1 -->
+                <div id="q1" class="space-y-6 md:space-y-8">
+                    <div class="flex items-center justify-between text-xs md:text-sm font-bold text-olive-500">
+                        <span>QUESTION 01</span>
+                        <span>1 / 3</span>
+                    </div>
+                    <h3 class="text-lg md:text-2xl font-bold text-warm-900">Q. 내가 자전거를 가장 타고 싶어지는 순간은?</h3>
+                    <div class="space-y-3.5 md:space-y-4">
+                        <button onclick="nextQuestion(1, 'A')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🌿 한적한 공원과 이쁜 카페거리를 천천히 산책하고 싶을 때
+                        </button>
+                        <button onclick="nextQuestion(1, 'B')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            ⚡ 거친 바람을 뚫고 끝없이 뻗은 도로를 질주하고 싶을 때
+                        </button>
+                        <button onclick="nextQuestion(1, 'C')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🏞️ 울퉁불퉁 숲길이나 동네 언덕길을 안전하고 힘차게 오르고 싶을 때
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 질문 2 -->
+                <div id="q2" class="hidden space-y-6 md:space-y-8">
+                    <div class="flex items-center justify-between text-xs md:text-sm font-bold text-olive-500">
+                        <span>QUESTION 02</span>
+                        <span>2 / 3</span>
+                    </div>
+                    <h3 class="text-lg md:text-2xl font-bold text-warm-900">Q. 자전거를 선택할 때 나의 최고 우선순위는?</h3>
+                    <div class="space-y-3.5 md:space-y-4">
+                        <button onclick="nextQuestion(2, 'A')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            👗 무조건 이쁘고, 보관하기 편하고 귀여운 자전거가 최고!
+                        </button>
+                        <button onclick="nextQuestion(2, 'B')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            ⚖️ 무게가 아주 가볍고 엄청 빠른 기동성이 최고!
+                        </button>
+                        <button onclick="nextQuestion(2, 'C')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🛋️ 노면 충격을 줄여주는 폭신한 승차감과 극강의 편안함!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 질문 3 -->
+                <div id="q3" class="hidden space-y-6 md:space-y-8">
+                    <div class="flex items-center justify-between text-xs md:text-sm font-bold text-olive-500">
+                        <span>QUESTION 03</span>
+                        <span>3 / 3</span>
+                    </div>
+                    <h3 class="text-lg md:text-2xl font-bold text-warm-900">Q. 당신의 현재 체력 수준 혹은 성향은?</h3>
+                    <div class="space-y-3.5 md:space-y-4">
+                        <button onclick="nextQuestion(3, 'A')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🧸 평화주의자형: 저질 체력이지만 유유자적 힐링을 선호함
+                        </button>
+                        <button onclick="nextQuestion(3, 'B')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🏃 활력 넘치는 열정파: 목표를 세우면 무조건 끝까지 달리는 편
+                        </button>
+                        <button onclick="nextQuestion(3, 'C')" class="w-full text-left p-4 md:p-5 rounded-2xl border border-warm-200 hover:border-olive-500 hover:bg-olive-50/50 transition-all font-semibold text-sm md:text-base text-warm-900/80">
+                            🧭 탐험가형: 길을 잃어도 구석구석 돌아다니는 것을 좋아함
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 결과 화면 -->
+                <div id="quiz-result" class="hidden text-center space-y-6 md:space-y-8">
+                    <span class="inline-block text-5xl md:text-6xl mb-2" id="res-emoji">🚲</span>
+                    <h3 class="text-xs md:text-sm font-bold text-olive-500 uppercase tracking-widest">YOUR STYLE</h3>
+                    <h4 class="text-2xl md:text-4xl font-black text-warm-900" id="res-title">자전거 타입 결과</h4>
+                    <p class="text-sm md:text-lg text-warm-900/75 leading-relaxed max-w-2xl mx-auto" id="res-desc">
+                        자전거 설명 내용
+                    </p>
+                    <div class="pt-4 md:pt-6 flex justify-center gap-5">
+                        <button onclick="restartQuiz()" class="px-6 py-3 rounded-full border border-warm-300 hover:bg-warm-50 text-xs md:text-sm font-bold transition-all transform active:scale-95 text-warm-900/80">
+                            다시 테스트하기
+                        </button>
+                        <a href="#about" class="px-6 py-3 rounded-full bg-olive-500 hover:bg-olive-600 text-white text-xs md:text-sm font-bold transition-all transform active:scale-95 shadow-md shadow-olive-500/10">
+                            가이드 이어서 읽기
+                        </a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <script>
+        const answers = { q1: '', q2: '', q3: '' };
+
+        function nextQuestion(currNum, val) {
+            playBikeBell();
+            answers['q' + currNum] = val;
+
+            const currDiv = document.getElementById('q' + currNum);
+            currDiv.classList.add('hidden');
+
+            if (currNum < 3) {
+                const nextDiv = document.getElementById('q' + (currNum + 1));
+                nextDiv.classList.remove('hidden');
+            } else {
+                showQuizResult();
+            }
+        }
+
+        function showQuizResult() {
+            const resultDiv = document.getElementById('quiz-result');
+            resultDiv.classList.remove('hidden');
+
+            const counts = { A: 0, B: 0, C: 0 };
+            counts[answers.q1]++;
+            counts[answers.q2]++;
+            counts[answers.q3]++;
+
+            let maxType = 'A';
+            if (counts.B > counts.A && counts.B >= counts.C) maxType = 'B';
+            else if (counts.C > counts.A && counts.C > counts.B) maxType = 'C';
+
+            const resEmoji = document.getElementById('res-emoji');
+            const resTitle = document.getElementById('res-title');
+            const resDesc = document.getElementById('res-desc');
+
+            if (maxType === 'A') {
+                resEmoji.innerText = '🚲';
+                resTitle.innerText = '감성 가득 "미니벨로" 라이더';
+                resDesc.innerText = '느긋한 힐링과 어여쁜 비주얼을 최우선으로 생각하는 당신! 가볍고 귀여우며 언제든 폴딩해서 보관할 수 있는 미니벨로(Mini Velo)가 찰떡궁합입니다. 집 근처 한적한 강변이나 보도블록 위의 여유를 누려보세요.';
+            } else if (maxType === 'B') {
+                resEmoji.innerText = '🚴';
+                resTitle.innerText = '야생의 활력 "로드 자린이"';
+                resDesc.innerText = '스피드와 심장의 두근거림을 아끼는 열정적인 당신! 바람을 시원하게 가르고 쭉쭉 뻗은 한강 자전거 도로를 누빌 수 있는 로드 자전거(Road Bike)가 딱 어울립니다. 바람막이 자켓을 걸치고 전방을 주시하며 나아가 보세요.';
+            } else {
+                resEmoji.innerText = '🚵';
+                resTitle.innerText = '만능 자유 "하이브리드 / MTB"';
+                resDesc.innerText = '어떤 길이든 가볍고 튼튼하며 편안하게 지나가고 싶은 합리적인 탐험가! 바퀴가 튼튼하고 편안한 플랫바가 달린 하이브리드 자전거 또는 산악용 서스펜션이 탑재된 입문용 MTB를 강력 추천합니다.';
+            }
+        }
+
+        function restartQuiz() {
+            playBikeBell();
+            document.getElementById('quiz-result').classList.add('hidden');
+            document.getElementById('q1').classList.remove('hidden');
+            document.getElementById('q2').classList.add('hidden');
+            document.getElementById('q3').classList.add('hidden');
+            answers.q1 = '';
+            answers.q2 = '';
+            answers.q3 = '';
+        }
+    </script>
+
+    <!-- 6. 마지막 푸터 겸 컨택트 영역 (대형화 및 디자인 정비) -->
+    <section class="snap-section h-screen flex flex-col justify-between pt-28 pb-8 bg-olive-500 text-white text-center relative overflow-hidden">
+        <div class="absolute -inset-0 bg-gradient-to-tr from-olive-600 to-olive-500 opacity-90 -z-10"></div>
+        
+        <div class="max-w-3xl mx-auto px-8 w-full my-auto">
+            <h2 class="text-3xl md:text-5xl font-black mb-4">같이 두 바퀴로 달려 볼까요?</h2>
+            <p class="text-sm md:text-lg text-olive-100 max-w-2xl mx-auto leading-relaxed mb-8 md:mb-10">
+                주저하는 순간 시간은 지나가고, 바람은 불어옵니다.<br>
+                자전거 입문이나 자잘한 고민이 있다면 주저 말고 다정한 이메일을 보내주세요!
+            </p>
+
+            <form id="ctaForm" onsubmit="handleCtaSubmit(event)" class="space-y-5 max-w-xl mx-auto text-left">
+                <div>
+                    <label class="block text-xs md:text-sm font-bold text-olive-200 mb-2" for="email">답장받을 이메일 주소</label>
+                    <input required type="email" id="email" placeholder="example@email.com" class="w-full px-5 py-3.5 md:py-4 rounded-xl bg-olive-600 border border-olive-400 placeholder:text-olive-300 focus:outline-none focus:ring-2 focus:ring-white/50 text-white text-sm md:text-base" />
+                </div>
+                <div>
+                    <label class="block text-xs md:text-sm font-bold text-olive-200 mb-2" for="message">나의 자전거 입문 고민거리</label>
+                    <textarea required id="message" rows="3" placeholder="예: 무릎 아플까 봐 걱정돼요, 자전거 가격대가 고민이에요..." class="w-full px-5 py-3.5 md:py-4 rounded-xl bg-olive-600 border border-olive-400 placeholder:text-olive-300 focus:outline-none focus:ring-2 focus:ring-white/50 text-white text-sm md:text-base"></textarea>
+                </div>
+                <button type="submit" class="w-full py-4 md:py-5 rounded-xl bg-white text-olive-500 font-black text-sm md:text-base shadow-lg hover:bg-warm-100 transition-all transform active:scale-[0.98]">
+                    다정한 입문 편지 보내기
+                </button>
+            </form>
+        </div>
+
+        <footer class="text-olive-200/70 w-full mt-6">
+            <div class="max-w-7xl mx-auto px-8 flex flex-col md:flex-row items-center justify-between gap-6 text-xs font-semibold">
+                <div class="flex items-center gap-2.5 text-white font-bold">
+                    <i data-lucide="bike" class="w-5 h-5 text-white"></i>
+                    <span class="text-sm">넘어져도 괜찮아</span>
+                </div>
+                <p>&copy; 2026 넘어져도 괜찮아. 자린이를 위한 따뜻한 다이어리.</p>
+                <div class="flex gap-5">
+                    <a href="#" class="hover:text-white transition-colors">이용 약관</a>
+                    <span>&middot;</span>
+                    <a href="#" class="hover:text-white transition-colors">개인정보 처리방침</a>
+                </div>
+            </div>
+        </footer>
+    </section>
+
+    <!-- 토스트 알림창 -->
+    <div id="toast" class="fixed bottom-8 right-8 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-warm-900 text-white px-8 py-4 rounded-2xl flex items-center gap-3 text-sm md:text-base font-semibold shadow-2xl">
+        <i data-lucide="check-circle" class="w-6 h-6 text-olive-500"></i>
+        <span id="toast-text">메시지가 따릉 소리와 함께 무사히 전송되었습니다!</span>
+    </div>
+
+    <script>
+        function handleCtaSubmit(e) {
+            e.preventDefault();
+            playBikeBell();
+
+            const emailInput = document.getElementById('email');
+            const messageInput = document.getElementById('message');
+
+            const toast = document.getElementById('toast');
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+
+            emailInput.value = '';
+            messageInput.value = '';
+        }
+
+        // 루사이드 아이콘 초기 렌더링
+        lucide.createIcons();
+    </script>
+
+</body>
+</html>
